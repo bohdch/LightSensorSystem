@@ -2,39 +2,39 @@
 using System.Text.Json;
 using LightSensorSimulator.Constants;
 using LightSensorSimulator.Models;
+using Microsoft.Extensions.Logging;
 using Timer = System.Timers.Timer;
 
 namespace LightSensorSimulator.Services
 {
     public class LightSensorService
     {
+        private readonly ILogger<LightSensorService> _logger;
         private readonly DeviceConfiguration _deviceConfiguration;
         private readonly HttpClient _httpClient;
         private List<Measurement> _measurements;
         private Timer _measurementTimer;
 
-        public LightSensorService(DeviceConfiguration deviceConfiguration ,HttpClient httpClient)
+        public LightSensorService(ILogger<LightSensorService> logger, DeviceConfiguration deviceConfiguration ,HttpClient httpClient)
         {
+            _logger = logger;
             _deviceConfiguration = deviceConfiguration;
             _httpClient = httpClient;
             _measurements = new List<Measurement>();
-
             _measurementTimer = new Timer(_deviceConfiguration.MeasurementInterval);
 
-            _measurementTimer.Elapsed += (sender, e) =>
-            {
-                TakeMeasurement();
-            };
+            _measurementTimer.Elapsed += async (_, _) => await TakeMeasurementAsync();
 
             _measurementTimer.Start();
+            _logger.LogInformation("Measurement timer started with an interval of {Interval} milliseconds", _deviceConfiguration.MeasurementInterval);
         }
 
-        private void TakeMeasurement()
+        private async Task TakeMeasurementAsync()
         {
             var currentDate = DateTime.UtcNow.Date;
             var currentDateTime = DateTime.UtcNow;
 
-            //Normalizes time into a range 0 - 24
+            // Normalize time into a range 0 - 24
             var timeFraction = currentDateTime.Hour + (currentDateTime.Minute / 60.0);  
 
             double peakLux = GetRandomPeakLux(currentDate);
@@ -48,17 +48,20 @@ namespace LightSensorSimulator.Services
             };
 
             _measurements.Add(measurement);
+            _logger.LogInformation("Measurement taken at {Timestamp}: {Illuminance} Lux", currentDateTime, illuminance);
 
             if (_measurements.Count >= _deviceConfiguration.MeasurementsToSend)
             {
-                SendDataToServer(_measurements).Wait();
+                await SendDataToServer(_measurements);
                 _measurements.Clear();
+                _logger.LogInformation("Data batch sent successfully");
             }
         }
 
         private double GetRandomPeakLux(DateTime currentDate)
         {
-            return LuxLevels.PeakLuxMin + new Random(currentDate.DayOfYear).Next(0, (int)(LuxLevels.PeakLuxMax - LuxLevels.PeakLuxMin + 1));
+            return LuxLevels.PeakLuxMin +
+                   new Random(currentDate.DayOfYear).Next(0, (int)(LuxLevels.PeakLuxMax - LuxLevels.PeakLuxMin + 1));
         }
 
         private double CalculateIlluminance(double timeFraction, double peakLux)
@@ -69,7 +72,9 @@ namespace LightSensorSimulator.Services
             if (timeFraction >= SunTimes.Sunrise && timeFraction <= SunTimes.Sunset)
             {
                 // Daylight: Calculate illuminance between sunrise and sunset
-                double mu = (timeFraction - SunTimes.Sunrise) / (noonTime - SunTimes.Sunrise);
+                double mu = CalculateProportionalDistance(timeFraction, SunTimes.Sunrise,
+                    timeFraction <= noonTime ? noonTime : SunTimes.Sunset);
+
                 illuminance = timeFraction <= noonTime
                     ? ExponentialInterpolate(LuxLevels.BaseLux, peakLux, mu)
                     : ExponentialInterpolate(peakLux, LuxLevels.BaseLux, (timeFraction - noonTime) / (SunTimes.Sunset - noonTime));
@@ -77,27 +82,33 @@ namespace LightSensorSimulator.Services
             else if (timeFraction > SunTimes.Sunset)
             {
                 // Post-sunset: Calculate illuminance after sunset towards night
-                double mu = (timeFraction - SunTimes.Sunset) / (24 - SunTimes.Sunset);
+                double mu = CalculateProportionalDistance(timeFraction, SunTimes.Sunset, 24.0);
                 illuminance = ExponentialInterpolateAggressive(LuxLevels.BaseLux, LuxLevels.NightLux, mu);
             }
             else
             {
                 // Pre-sunrise: Calculate illuminance before sunrise
-                double mu = timeFraction / SunTimes.Sunrise;
+                double mu = CalculateProportionalDistance(timeFraction, 0.0, SunTimes.Sunrise);
                 illuminance = ExponentialInterpolateAggressive(LuxLevels.NightLux, LuxLevels.BaseLux, mu);
             }
 
             return illuminance;
         }
 
-        // Smoothly transition between y1 and y2
+        // Computes the proportion of the distance covered from periodStart to periodEnd
+        private double CalculateProportionalDistance(double timeFraction, double periodStart, double periodEnd)
+        {
+            return (timeFraction - periodStart) / (periodEnd - periodStart);
+        }
+
+        // Gradual transition between y1 and y2
         private double ExponentialInterpolate(double y1, double y2, double mu)
         {
             (y1, y2) = ValidateInputs(y1, y2);
             return y1 * Math.Pow(y2 / y1, mu);
         }
 
-        // Smoothly transition between y1 and y2 using a more aggressive formula
+        // Rapid transition between y1 and y2 using a more aggressive formula
         private double ExponentialInterpolateAggressive(double y1, double y2, double mu)
         {
             (y1, y2) = ValidateInputs(y1, y2);
@@ -118,13 +129,12 @@ namespace LightSensorSimulator.Services
             var content = new StringContent(serializedMeasurements, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(_deviceConfiguration.ServerUrl, content);
-            var responseContent = await response.Content.ReadAsStringAsync();
-            
-            Console.WriteLine($"Response Code: {response.StatusCode}, Response Content: {responseContent}");
+
+            _logger.LogInformation("Response Code: {StatusCode}, Response Content: {ResponseContent}", response.StatusCode, await response.Content.ReadAsStringAsync());
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine("Error sending data to API");
+                _logger.LogError("Error sending data to API");
             }
         }
     }

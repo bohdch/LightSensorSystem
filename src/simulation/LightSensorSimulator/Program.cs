@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateDefaultBuilder();
-builder.ConfigureAppConfiguration((hostingContext, config) =>
+builder.ConfigureAppConfiguration((_, config) =>
 {
     config.AddEnvironmentVariables();
     config.AddJsonFile("appsettings.json", optional: true);
