@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightSensorDAL", "src\serve
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SensorSimulatorTests", "tests\SensorSimulatorTests\SensorSimulatorTests.csproj", "{557ADE10-BEFB-4F25-9AA4-843783040E7B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerTests", "tests\ServerTests\ServerTests.csproj", "{3951F2AC-3898-4B74-8B25-33AA436DCB4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{557ADE10-BEFB-4F25-9AA4-843783040E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{557ADE10-BEFB-4F25-9AA4-843783040E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{557ADE10-BEFB-4F25-9AA4-843783040E7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3951F2AC-3898-4B74-8B25-33AA436DCB4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3951F2AC-3898-4B74-8B25-33AA436DCB4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3951F2AC-3898-4B74-8B25-33AA436DCB4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3951F2AC-3898-4B74-8B25-33AA436DCB4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
