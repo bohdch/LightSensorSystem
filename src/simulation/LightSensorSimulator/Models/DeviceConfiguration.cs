@@ -1,5 +1,8 @@
-﻿namespace LightSensorSimulator.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace LightSensorSimulator.Models
 {
+    [ExcludeFromCodeCoverage]
     public class DeviceConfiguration
     {
         public int DeviceId { get; set; }

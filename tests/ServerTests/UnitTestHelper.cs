@@ -102,6 +102,22 @@ namespace ServerTests
                 }
             );
 
+            // Seed clients
+            context.Clients.AddRange(
+                new Client
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "TestClient1",
+                    HashedPassword = "hashedpassword1"
+                },
+                new Client
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "TestClient2",
+                    HashedPassword = "hashedpassword2"
+                }
+            );
+
             context.SaveChanges();
         }
     }

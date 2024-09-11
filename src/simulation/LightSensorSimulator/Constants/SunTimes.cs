@@ -1,5 +1,8 @@
-﻿namespace LightSensorSimulator.Constants
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace LightSensorSimulator.Constants
 {
+    [ExcludeFromCodeCoverage]
     public static class SunTimes
     {
         public const double Sunrise = 6.0; // 6 AM

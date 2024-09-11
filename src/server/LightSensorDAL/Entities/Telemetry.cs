@@ -1,5 +1,8 @@
-﻿namespace LightSensorDAL.Entities
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace LightSensorDAL.Entities
 {
+    [ExcludeFromCodeCoverage]
     public class Telemetry
     {
         public Guid Id { get; set; }
