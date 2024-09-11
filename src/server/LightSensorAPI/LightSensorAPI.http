@@ -1,0 +1,15 @@
+@LightSensorAPI_HostAddress = http://localhost:5219
+
+
+GET {{LightSensorAPI_HostAddress}}/devices/{deviceId}/statistics
+
+###
+
+POST {{LightSensorAPI_HostAddress}}/devices/{deviceId}/telemetry
+Content-Type: application/json
+
+{
+  //IEnumerable
+}
+
+###
