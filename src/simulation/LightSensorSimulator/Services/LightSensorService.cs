@@ -2,6 +2,7 @@
 using System.Text.Json;
 using LightSensorSimulator.Constants;
 using LightSensorSimulator.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Timer = System.Timers.Timer;
 
@@ -10,23 +11,31 @@ namespace LightSensorSimulator.Services
     public class LightSensorService
     {
         private readonly ILogger<LightSensorService> _logger;
+        private readonly IConfiguration _configuration;
         private readonly DeviceConfiguration _deviceConfiguration;
         private readonly HttpClient _httpClient;
         private List<Measurement> _measurements;
         private Timer _measurementTimer;
 
-        public LightSensorService(ILogger<LightSensorService> logger, DeviceConfiguration deviceConfiguration ,HttpClient httpClient)
+        public LightSensorService(ILogger<LightSensorService> logger, IConfiguration configuration,
+            DeviceConfiguration deviceConfiguration, HttpClient httpClient)
         {
             _logger = logger;
+            _configuration = configuration;
             _deviceConfiguration = deviceConfiguration;
             _httpClient = httpClient;
+
             _measurements = new List<Measurement>();
             _measurementTimer = new Timer(_deviceConfiguration.MeasurementInterval);
-
             _measurementTimer.Elapsed += async (_, _) => await TakeMeasurementAsync();
 
-            _measurementTimer.Start();
+            // Start the timer
+            _measurementTimer.AutoReset = true;
+            _measurementTimer.Enabled = true;
+
             _logger.LogInformation("Measurement timer started with an interval of {Interval} minutes", _measurementTimer.Interval / 60000);
+
+            TakeMeasurementAsync().Wait(); // Take the first measurement immediately
         }
 
         public async Task TakeMeasurementAsync()
@@ -60,16 +69,26 @@ namespace LightSensorSimulator.Services
 
         public async Task SendDataToServer(IEnumerable<Measurement> measurements)
         {
-            var serializedMeasurements = JsonSerializer.Serialize(measurements.Select(m => new { illum = m.Illuminance, time = m.Timestamp }));
-            var content = new StringContent(serializedMeasurements, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync(_deviceConfiguration.ServerUrl, content);
-
-            _logger.LogInformation("Response Code: {StatusCode}, Response Content: {ResponseContent}", response.StatusCode, await response.Content.ReadAsStringAsync());
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                _logger.LogError("Error sending data to API");
+                var apiToken = await GetApiTokenAsync();
+                if (string.IsNullOrEmpty(apiToken))
+                {
+                    _logger.LogError("No API token available. Cannot send data.");
+                    return;
+                }
+
+                var serializedMeasurements = JsonSerializer.Serialize(measurements.Select(m => new { illum = m.Illuminance, time = m.Timestamp }));
+                var content = new StringContent(serializedMeasurements, Encoding.UTF8, "application/json");
+
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiToken);
+
+                var response = await _httpClient.PostAsync(_deviceConfiguration.ServerUrl, content);
+                _logger.LogInformation("Response Code: {StatusCode}", response.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while sending data to the server.");
             }
         }
 
@@ -138,6 +157,34 @@ namespace LightSensorSimulator.Services
             y2 = y2 <= 0 ? 0.1 : y2;
 
             return (y1, y2);
+        }
+
+        private async Task<string> GetApiTokenAsync()
+        {
+            try
+            {
+                var loginRequest = new
+                {
+                    Login = _configuration["Auth:BaseClient"],
+                    Password = _configuration["Auth:Password"]
+                };
+
+                var json = JsonSerializer.Serialize(loginRequest);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var loginResponse = await _httpClient.PostAsync(_configuration["Auth:LoginUrl"], data);
+                if (loginResponse.IsSuccessStatusCode)
+                {
+                    var loginContent = await loginResponse.Content.ReadAsStringAsync();
+                    var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(loginContent);
+                    return tokenResponse?.Token;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to retrieve API token due to an exception.");
+            }
+            return null;
         }
     }
 }

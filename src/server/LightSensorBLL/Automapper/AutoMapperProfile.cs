@@ -8,6 +8,14 @@ namespace LightSensorBLL.Automapper
     {
         public AutoMapperProfile()
         {
+            CreateMap<Client, ClientDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            CreateMap<NewClient, Client>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Login))
+                .ForMember(dest => dest.HashedPassword, opt => opt.Ignore());
+
             CreateMap<TelemetryDto, Telemetry>()
                 .ForMember(dest => dest.Time, opt => opt.MapFrom(src => DateTimeOffset.FromUnixTimeSeconds(src.Time).DateTime))
                 .ForMember(dest => dest.Illum, opt => opt.MapFrom(src => src.Illum));

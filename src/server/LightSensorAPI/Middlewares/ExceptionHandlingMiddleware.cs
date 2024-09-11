@@ -52,17 +52,27 @@ namespace LightSensorAPI.Middlewares
             var enhancedStackTrace = ex.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
             string source = enhancedStackTrace.Split()[4].Split('.')[^2];
 
-            if (_env.IsEnvironment("QA"))
+            if (_env.IsEnvironment("QA") && context.User.Identity.IsAuthenticated)
             {
-                // TODO: Implement authentication to add QA specific logging
-                //log = log.ForContext("UserId", context.User.Identity.Name);
-            }
+                // Construct the log message including user info only in QA environment
+                string clientInfo = $"{context.User.Identity.Name}";
 
-            log.Error("\tExceptionType: {ExceptionType}\n\tMessage: {Message}\n\tSource: {Source}\n\tStackTrace: {StackTrace}\t",
-                ex.GetType(),
-                ex.Message,
-                source,
-                enhancedStackTrace);
+                log.Error("\tExceptionType: {ExceptionType}\n\tMessage: {Message}\n\tSource: {Source}\n\tAuthenticated Client: {ClientInfo}\n\tStackTrace: {StackTrace}}",
+                    ex.GetType(),
+                    ex.Message,
+                    source,
+                    clientInfo,
+                    enhancedStackTrace);
+            }
+            else
+            {
+                // Construct the log message without user info for non-QA environments
+                log.Error("\tExceptionType: {ExceptionType}\n\tMessage: {Message}\n\tSource: {Source}\n\tStackTrace: {StackTrace}",
+                    ex.GetType(),
+                    ex.Message,
+                    source,
+                    enhancedStackTrace);
+            }
         }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using LightSensorBLL.DTOs;
 using LightSensorBLL.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LightSensorAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("devices/{deviceId}")]
     public class TelemetryController : ControllerBase

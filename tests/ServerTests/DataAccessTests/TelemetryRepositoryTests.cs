@@ -36,6 +36,7 @@ public class TelemetryRepositoryTests
         var repository = new TelemetryRepository(context);
         var newTelemetry = new List<Telemetry>
         {
+            new() { Id = Guid.NewGuid(), DeviceId = deviceId, Illum = 100.4, Time = DateTime.UtcNow.AddHours(-1) },
             new() { Id = Guid.NewGuid(), DeviceId = deviceId, Illum = 123.4, Time = DateTime.UtcNow.AddMinutes(-45) },
             new() { Id = Guid.NewGuid(), DeviceId = deviceId, Illum = 150.0, Time = DateTime.UtcNow.AddMinutes(-30) },
             new() { Id = Guid.NewGuid(), DeviceId = deviceId, Illum = 200.0, Time = DateTime.UtcNow.AddMinutes(-15) },
@@ -48,7 +49,7 @@ public class TelemetryRepositoryTests
         // Assert
         var allItemsExist = newTelemetry.All(item => context.Telemetries.Contains(item));
 
-        Assert.Equal(14, context.Telemetries.Count()); // Including the seeded data
+        Assert.Equal(15, context.Telemetries.Count()); // Including the seeded data
         Assert.True(allItemsExist);
     }
 }

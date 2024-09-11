@@ -60,6 +60,7 @@ public class TelemetryServiceTests
         // Arrange
         var telemetryDtos = new List<TelemetryDto>
         {
+            new() { Illum = 75.5, Time = DateTimeOffset.UtcNow.AddHours(-1).ToUnixTimeMilliseconds() },
             new() { Illum = 100.5, Time = DateTimeOffset.UtcNow.AddMinutes(-45).ToUnixTimeMilliseconds() },
             new() { Illum = 150.2, Time = DateTimeOffset.UtcNow.AddDays(-30).ToUnixTimeMilliseconds() },
             new() { Illum = 250.3, Time = DateTimeOffset.UtcNow.AddDays(-15).ToUnixTimeMilliseconds() },
@@ -71,7 +72,8 @@ public class TelemetryServiceTests
             new() {Id = Guid.NewGuid(), DeviceId = deviceId, Illum = telemetryDtos[0].Illum, Time = DateTimeOffset.FromUnixTimeMilliseconds(telemetryDtos[0].Time).UtcDateTime },
             new() {Id = Guid.NewGuid(), DeviceId = deviceId, Illum = telemetryDtos[1].Illum, Time = DateTimeOffset.FromUnixTimeMilliseconds(telemetryDtos[1].Time).UtcDateTime },
             new() {Id = Guid.NewGuid(), DeviceId = deviceId, Illum = telemetryDtos[2].Illum, Time = DateTimeOffset.FromUnixTimeMilliseconds(telemetryDtos[2].Time).UtcDateTime },
-            new() {Id = Guid.NewGuid(), DeviceId = deviceId, Illum = telemetryDtos[3].Illum, Time = DateTimeOffset.FromUnixTimeMilliseconds(telemetryDtos[3].Time).UtcDateTime }
+            new() {Id = Guid.NewGuid(), DeviceId = deviceId, Illum = telemetryDtos[3].Illum, Time = DateTimeOffset.FromUnixTimeMilliseconds(telemetryDtos[3].Time).UtcDateTime },
+            new() {Id = Guid.NewGuid(), DeviceId = deviceId, Illum = telemetryDtos[4].Illum, Time = DateTimeOffset.FromUnixTimeMilliseconds(telemetryDtos[4].Time).UtcDateTime }
         };
 
         _mapperMock.Setup(m => m.Map<Telemetry>(It.IsAny<TelemetryDto>()))
