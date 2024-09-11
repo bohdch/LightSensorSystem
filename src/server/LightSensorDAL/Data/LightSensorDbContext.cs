@@ -26,8 +26,8 @@ namespace LightSensorDAL.Data
                 new
                 {
                     Id = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
-                    Name = "Light Sensor Client",
-                    HashedPassword = "AQAAAAIAAYagAAAAENvg6KJpJBd3nnamTJF9lCSYFNJeUiZ2BHs3SsyxkzDWEtZpstnU7df6A/uSdCCauQ==",
+                    Name = "LightSensorClient",
+                    HashedPassword = "AQAAAAIAAYagAAAAEKOFhy//Me/EsaBC93qxqEKuJOhGOJuJh0nZioQyHMdk12rsmryoml7hbvp/uP7MAw==",
                 });
         }
     }
