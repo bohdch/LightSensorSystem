@@ -1,11 +1,9 @@
-using System.Net;
 using Microsoft.Extensions.Configuration;
 using LightSensorSimulator.Constants;
 using LightSensorSimulator.Models;
 using LightSensorSimulator.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.Protected;
 
 namespace SensorSimulatorTests;
 
@@ -22,78 +20,11 @@ public class LightSensorServiceTests
     {
         _mockLogger = new Mock<ILogger<LightSensorService>>();
         _mockConfiguration = new Mock<IConfiguration>();
-        _deviceConfiguration = new DeviceConfiguration { MeasurementInterval = 900000, MeasurementsToSend = 5, ServerUrl = "http://localhost:5219/devices/1/telemetry" };
+        _deviceConfiguration = new DeviceConfiguration { MeasurementInterval = 900000, MeasurementsToSend = 5, ServerUrl = "https://localhost:7048/devices/1/telemetry" };
         _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
         _httpClient = new HttpClient(_mockHttpMessageHandler.Object) { BaseAddress = new Uri(_deviceConfiguration.ServerUrl) };
         _service = new LightSensorService(_mockLogger.Object, _mockConfiguration.Object, _deviceConfiguration, _httpClient);
     }
-
-    /*[Fact]
-    public async Task SendDataToServer_SendsDataAndLogsResponse()
-    {
-        // Arrange
-        var currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var measurements = new List<Measurement>
-        {
-            new() { Illuminance = 100.0, Timestamp = currentTime - 900 }, // 15 min ago
-            new() { Illuminance = 150.0, Timestamp = currentTime - 1800 }, // 30 min ago
-            new() { Illuminance = 200.0, Timestamp = currentTime - 2700 }, // 45 min ago
-            new() { Illuminance = 250.0, Timestamp = currentTime - 3600 } // an hour ago
-        };
-
-        var response = new HttpResponseMessage(HttpStatusCode.OK);
-        _mockHttpMessageHandler.Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == HttpMethod.Post &&
-                    req.RequestUri.ToString() == _deviceConfiguration.ServerUrl),
-                ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(response)
-            .Verifiable();
-
-        // Act
-        await _service.SendDataToServer(measurements);
-
-        // Assert
-        _mockHttpMessageHandler.Protected().Verify(
-            "SendAsync",
-            Times.Once(),
-            ItExpr.Is<HttpRequestMessage>(req =>
-                req.Method == HttpMethod.Post &&
-                req.RequestUri.ToString() == _deviceConfiguration.ServerUrl &&
-                req.Content.ReadAsStringAsync().Result.Contains("\"illum\":100") &&
-                req.Content.ReadAsStringAsync().Result.Contains("\"illum\":150") &&
-                req.Content.ReadAsStringAsync().Result.Contains("\"illum\":200") &&
-                req.Content.ReadAsStringAsync().Result.Contains("\"illum\":250")),
-            ItExpr.IsAny<CancellationToken>());
-    }*/
-
-    /*[Theory]
-    [InlineData(1.0, 0.0)]  // Night
-    [InlineData(2.0, 0.0)]  // Night
-    [InlineData(4.0, 1.5)]  // Night
-    [InlineData(9.0, 2126.0)]  // Early morning
-    [InlineData(12.0, 12486.0)] // Noon
-    [InlineData(16.0, 1178.5)] // Noon
-    [InlineData(18.0, 362.0)] // Evening
-    [InlineData(21.0, 104.0)] // Evening
-    [InlineData(23.0, 2.5)]  // Night
-    [InlineData(24.0, 0.0)]  // Night
-
-    public void CalculateIlluminance_AtDifferentTimes(double timeFraction, double expectedIlluminance)
-    {
-        // Arrange
-        DateTime testDate = new DateTime(2022, 1, 1);
-        var (peakLux, twilightLux) = _service.ReturnDynamicValues(testDate);
-
-        // Act
-        double calculatedIlluminance = _service.CalculateIlluminance(timeFraction, peakLux, twilightLux);
-        calculatedIlluminance = Math.Round(calculatedIlluminance * 2) / 2.0;
-
-        // Assert
-        Assert.Equal(expectedIlluminance, calculatedIlluminance);
-    }*/
 
     [Theory]
     [MemberData(nameof(GetTimeFractionsForTesting))]

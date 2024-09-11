@@ -27,6 +27,11 @@ namespace LightSensorBLL.Services
 
         public async Task AddClientAsync(NewClient newClient, CancellationToken cancellationToken = default)
         {
+            // Check if the client already exists
+            var existingClient = await _clientRepository.GetClientByNameAsync(newClient.Login, cancellationToken);
+            if (existingClient != null)
+                throw new InvalidOperationException($"A client with the name: '{newClient.Login}' already exists.");
+
             var clientEntity = _mapper.Map<Client>(newClient);
 
             clientEntity.HashedPassword = HashPassword(clientEntity, newClient.Password);
