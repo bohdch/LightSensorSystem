@@ -1,5 +1,8 @@
-﻿namespace LightSensorBLL.DTOs
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace LightSensorBLL.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class ClientDto
     {
         public Guid Id { get; set; }

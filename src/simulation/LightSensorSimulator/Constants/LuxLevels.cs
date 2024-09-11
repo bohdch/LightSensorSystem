@@ -1,5 +1,8 @@
-﻿namespace LightSensorSimulator.Constants
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace LightSensorSimulator.Constants
 {
+    [ExcludeFromCodeCoverage]
     public static class LuxLevels
     {
         public const double NightLux = 0.0; // Minimal lux level at deep night
