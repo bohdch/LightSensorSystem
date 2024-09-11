@@ -31,7 +31,7 @@ namespace LightSensorDAL.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task AddTelemetry(IEnumerable<Telemetry> telemetry, CancellationToken cancellationToken = default)
+        public async Task AddTelemetriesAsync(IEnumerable<Telemetry> telemetry, CancellationToken cancellationToken = default)
         {
             await _lightSensorContext.Telemetries.AddRangeAsync(telemetry, cancellationToken);
             await _lightSensorContext.SaveChangesAsync(cancellationToken);

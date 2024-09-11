@@ -44,7 +44,7 @@ public class TelemetryRepositoryTests
         };
 
         // Act
-        await repository.AddTelemetry(newTelemetry);
+        await repository.AddTelemetriesAsync(newTelemetry);
 
         // Assert
         var allItemsExist = newTelemetry.All(item => context.Telemetries.Contains(item));

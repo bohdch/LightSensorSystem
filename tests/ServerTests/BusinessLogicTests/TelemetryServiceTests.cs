@@ -79,17 +79,17 @@ public class TelemetryServiceTests
         _mapperMock.Setup(m => m.Map<Telemetry>(It.IsAny<TelemetryDto>()))
             .Returns<TelemetryDto>(dto => new Telemetry { DeviceId = deviceId, Illum = dto.Illum });
 
-        _telemetryRepositoryMock.Setup(r => r.AddTelemetry(It.IsAny<IEnumerable<Telemetry>>(), It.IsAny<CancellationToken>()))
+        _telemetryRepositoryMock.Setup(r => r.AddTelemetriesAsync(It.IsAny<IEnumerable<Telemetry>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Act
-        await _telemetryService.AddTelemetry(deviceId, telemetryDtos, It.IsAny<CancellationToken>());
+        await _telemetryService.AddTelemetriesAsync(deviceId, telemetryDtos, It.IsAny<CancellationToken>());
 
         // Assert
         telemetries.All(t => t.DeviceId == deviceId).Should().BeTrue("All telemetry entries should have the correct DeviceId");
         telemetryDtos.ForEach(dto => _mapperMock.Verify(m => m.Map<Telemetry>(dto), Times.Once));
         _telemetryRepositoryMock.Verify(
-            r => r.AddTelemetry(It.Is<IEnumerable<Telemetry>>(t => t.All(te => te.DeviceId == deviceId)),
+            r => r.AddTelemetriesAsync(It.Is<IEnumerable<Telemetry>>(t => t.All(te => te.DeviceId == deviceId)),
                 It.IsAny<CancellationToken>()), Times.Once);
     }
 }

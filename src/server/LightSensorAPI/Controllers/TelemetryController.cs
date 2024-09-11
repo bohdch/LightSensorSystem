@@ -25,9 +25,9 @@ namespace LightSensorAPI.Controllers
         }
 
         [HttpPost("telemetry")]
-        public async Task<IActionResult> PostTelemetry([FromRoute] int deviceId, [FromBody] IEnumerable<TelemetryDto> telemetryDto, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> PostTelemetriesAsync([FromRoute] int deviceId, [FromBody] IEnumerable<TelemetryDto> telemetryDtos, CancellationToken cancellationToken = default)
         {
-            await _telemetryService.AddTelemetry(deviceId ,telemetryDto, cancellationToken);
+            await _telemetryService.AddTelemetriesAsync(deviceId ,telemetryDtos, cancellationToken);
             return Ok();
         }
     }

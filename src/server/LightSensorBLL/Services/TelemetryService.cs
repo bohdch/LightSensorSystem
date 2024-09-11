@@ -25,16 +25,16 @@ namespace LightSensorBLL.Services
             return mappedStats;
         }
 
-        public async Task AddTelemetry(int deviceId, IEnumerable<TelemetryDto> telemetryDto, CancellationToken cancellationToken = default)
+        public async Task AddTelemetriesAsync(int deviceId, IEnumerable<TelemetryDto> telemetryDtos, CancellationToken cancellationToken = default)
         {
-            var telemetries = telemetryDto.Select(_mapper.Map<Telemetry>).ToList();
+            var telemetries = telemetryDtos.Select(_mapper.Map<Telemetry>).ToList();
 
             foreach (var telemetry in telemetries)
             {
                 telemetry.DeviceId = deviceId;
             }
 
-            await _telemetryRepository.AddTelemetry(telemetries, cancellationToken);
+            await _telemetryRepository.AddTelemetriesAsync(telemetries, cancellationToken);
         }
     }
 }

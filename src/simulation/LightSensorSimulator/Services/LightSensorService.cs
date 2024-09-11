@@ -83,8 +83,7 @@ namespace LightSensorSimulator.Services
 
                 _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiToken);
 
-                var response = await _httpClient.PostAsync(_deviceConfiguration.ServerUrl, content);
-                _logger.LogInformation("Response Code: {StatusCode}", response.StatusCode);
+                await _httpClient.PostAsync(_deviceConfiguration.ServerUrl, content);
             }
             catch (Exception ex)
             {
