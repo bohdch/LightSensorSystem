@@ -50,7 +50,7 @@ builder.Services.AddSingleton(new MapperConfiguration(cfg =>
 
 builder.Services.AddTransient<IClientRepository, ClientRepository>();
 builder.Services.AddTransient<IClientService, ClientService>();
-builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
+builder.Services.AddTransient<IJwtService, JwtService>();
 builder.Services.AddTransient<ITelemetryRepository, TelemetryRepository>();
 builder.Services.AddTransient<ITelemetryService, TelemetryService>();
 

@@ -10,12 +10,12 @@ namespace LightSensorAPI.Controllers
     public class ClientController : ControllerBase
     {
         private readonly IClientService _clientService;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly IJwtService _jwtService;
 
-        public ClientController(IClientService clientService, IJwtTokenService jwtTokenService)
+        public ClientController(IClientService clientService, IJwtService jwtService)
         {
             _clientService = clientService;
-            _jwtTokenService = jwtTokenService;
+            _jwtService = jwtService;
         }
 
         [Authorize]
@@ -29,7 +29,7 @@ namespace LightSensorAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginClient([FromBody] NewClient loginDto, CancellationToken cancellationToken = default)
         {
-            return Ok(new { Token = await _jwtTokenService.GetAuthToken(loginDto, cancellationToken) });
+            return Ok(new { Token = await _jwtService.GetAuthToken(loginDto, cancellationToken) });
         }
 
         [HttpPost("new")]

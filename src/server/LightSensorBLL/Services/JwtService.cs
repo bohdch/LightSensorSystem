@@ -8,12 +8,12 @@ using System.Security.Claims;
 
 namespace LightSensorBLL.Services
 {
-    public class JwtTokenService : IJwtTokenService
+    public class JwtService : IJwtService
     {
         private readonly IClientService _clientService;
         private readonly IConfiguration _configuration;
 
-        public JwtTokenService(IClientService clientService, IConfiguration configuration)
+        public JwtService(IClientService clientService, IConfiguration configuration)
         {
             _clientService = clientService;
             _configuration = configuration;
