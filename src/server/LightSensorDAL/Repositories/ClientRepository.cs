@@ -20,9 +20,9 @@ namespace LightSensorDAL.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public Task<Client> GetClientByNameAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<Client> GetClientByNameAsync(string name, CancellationToken cancellationToken = default)
         {
-            return _lightSensorContext.Clients
+            return await _lightSensorContext.Clients
                 .FirstOrDefaultAsync(u => u.Name == name, cancellationToken);
         }
 

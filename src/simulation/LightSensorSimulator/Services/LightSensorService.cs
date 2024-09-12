@@ -14,8 +14,8 @@ namespace LightSensorSimulator.Services
         private readonly IConfiguration _configuration;
         private readonly DeviceConfiguration _deviceConfiguration;
         private readonly HttpClient _httpClient;
-        private List<Measurement> _measurements;
-        private Timer _measurementTimer;
+        private readonly List<Measurement> _measurements;
+        private readonly Timer _measurementTimer;
 
         public LightSensorService(ILogger<LightSensorService> logger, IConfiguration configuration,
             DeviceConfiguration deviceConfiguration, HttpClient httpClient)
